@@ -1,24 +1,37 @@
 package com.nnk.springboot;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Created by Khang Nguyen.
- * Email: khang.nguyen@banvien.com
- * Date: 09/03/2019
- * Time: 11:26 AM
+ * Classe de tests dédiée au chiffrement des mots de passe.
+ *
+ * <p>Cette classe vérifie le bon fonctionnement du mécanisme BCrypt utilisé pour sécuriser
+ * les mots de passe utilisateurs.</p>
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
 public class PasswordEncodeTest {
+
+    /**
+     * Encodeur BCrypt utilisé pour le chiffrement des mots de passe.
+     */
+    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+    /**
+     * Vérifie qu'un mot de passe crypté peut être correctement validé.
+     */
     @Test
-    public void testPassword() {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String pw = encoder.encode("123456");
-        System.out.println("[ "+ pw + " ]");
+    void shouldEncodeAndVerifyPassword() {
+        String rawPassword = "123456";
+
+        String encodedPassword = encoder.encode(rawPassword);
+
+        System.out.println("Encoded password: " + encodedPassword);
+
+        assertTrue(encoder.matches(rawPassword, encodedPassword));
+
+
     }
+
 }

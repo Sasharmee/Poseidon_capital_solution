@@ -15,18 +15,29 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Classe de tests unitaires dédiée au service {@link CurvePointService}.
+ *
+ * <p>Cette classe vérifie le bon fonctionnement des opérations métier associées aux CurvePoint.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 public class CurvePointServiceTest {
 
+    /**
+     * Repository mocké de gestion des CurvePoint.
+     */
     @Mock
     private CurvePointRepository curvePointRepository;
 
+    /**
+     * Service testé avec injections des mocks.
+     */
     @InjectMocks
     private CurvePointService curvePointService;
 
-    //TEST HAPPY PATH findAll(), on crée une cp, on crée la liste qui va contenir les cp grâce à la méthode findALl
-    //On vérifie bien que la liste result n'est pas vide
-    //On vérifie que le repository a bien effectué la méthode findAll
+    /**
+     * Vérifie la récupération de toutes les courbes.
+     */
     @Test
     void testFindAll() {
         CurvePoint cp = new CurvePoint();
@@ -38,9 +49,9 @@ public class CurvePointServiceTest {
         verify(curvePointRepository).findAll();
     }
 
-    //TEST HAPPY PATH findById(), on crée une cp, on la recherche par son id grâce à son repository optional
-    //On stocke dans notre objet result la cp retrouvée
-    //On vérifie que l'id de la cp dans notre objet est bien 1 et on vérifie que le repository a été appelé et a utilisé la méthode findById()
+    /**
+     * Vérifie la récupération d'une courbe via son identifiant unique.
+     */
     @Test
     void testFindById() {
         CurvePoint cp = new CurvePoint();
@@ -54,7 +65,9 @@ public class CurvePointServiceTest {
         verify(curvePointRepository).findById(1);
     }
 
-    //Test findById lorsqu'on ne retrouve pas dans la db une cp avec cet id
+    /**
+     * Vérifie qu'une exception est levée lorsque aucune courbe n'est trouvée via l'identifiant donné.
+     */
     @Test
     void testFindById_whenIdNotFound() {
         when(curvePointRepository.findById(1)).thenReturn(Optional.empty());
@@ -63,7 +76,9 @@ public class CurvePointServiceTest {
         curvePointService.findById(1));
     }
 
-    //On vérifie qu'on a bien save la nouvelle Cp créée
+    /**
+     * Vérifie la sauvegarde d'une courbe.
+     */
     @Test
     void testSave() {
         CurvePoint cp = new CurvePoint();
@@ -75,7 +90,10 @@ public class CurvePointServiceTest {
         assertNotNull(result);
         verify(curvePointRepository).save(cp);
     }
-    //on vérifie que repository a bien delete by id 1
+
+    /**
+     * Vérifie la suppression d'une courbe via son identifiant.
+     */
     @Test
     void testDeleteById() {
         curvePointService.deleteById(1);

@@ -1,35 +1,63 @@
 package com.nnk.springboot.controllers;
 
+import com.nnk.springboot.config.SecurityConfig;
 import com.nnk.springboot.domain.Rating;
-import com.nnk.springboot.services.RatingServiceInterface;
+import com.nnk.springboot.services.CustomUserDetailsService;
+import com.nnk.springboot.services.RatingService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
+/**
+ * Classe de tests MVC dédiée au contrôleur {@link RatingController}.
+ *
+ * <p>Cette classe vérifie le bon fonctionnement des routes HTTP, des validations,
+ * des vues retournées et des règles de sécurité associées aux Ratings.</p>
+ */
 @WebMvcTest(RatingController.class)
+@Import(SecurityConfig.class)
 public class RatingControllerTest {
 
+    /**
+     * Service mocké de gestion des utilisateurs.
+     */
     @MockBean
-    private RatingServiceInterface ratingService;
+    private CustomUserDetailsService customUserDetailsService;
 
+    /**
+     * Service mocké de gestion des Rating.
+     */
+    @MockBean
+    private RatingService ratingService;
+
+    /**
+     * Objet MockMvc utilisé pour simuler les requêtes HTTP.
+     */
     @Autowired
     private MockMvc mockMvc;
 
-    //GET List: on crée dans un premier temps un objet de test
-    //On se rend sur l'url /curvePoint/list
-    //On vérifie que la requête est ok, qu'on a la bonne view et qu'on a bien la liste
+    /**
+     * Vérifie l'affichage de la liste des notations financières.
+     *
+     * @throws Exception en cas d'erreur lors du test MVC
+     */
     @Test
-    void testList() throws Exception{
+    @WithMockUser(roles = "USER")
+    void testList_User() throws Exception{
+
         Rating rating = new Rating();
         rating.setId(1);
         rating.setMoodysRating("Moodys Rating");
@@ -45,41 +73,65 @@ public class RatingControllerTest {
                 .andExpect(model().attributeExists("ratings"));
     }
 
-    //TEST GET page add, on vérifie que lorsqu'on fait la requête tout est ok et on récupère la bonne vue
+    /**
+     * Vérifie l'affichage d'ajout d'une notation financière.
+     *
+     * @throws Exception en cas d'erreur lors du test MVC
+     */
     @Test
-    void testAddPage() throws Exception{
+    @WithMockUser(roles = "USER")
+    void testAddPage_User() throws Exception{
+
         mockMvc.perform(get("/rating/add"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("rating/add"));
     }
 
-    //TEST ADD une nouvelle cp avec respect des champs et redirection vers list après ajout
+    /**
+     * Vérifie l'ajout valide d'une notation financière.
+     *
+     * @throws Exception en cas d'erreur lors du test MVC
+     */
     @Test
-    void testValidate() throws Exception {
+    @WithMockUser(roles = "USER")
+    void testValidate_User() throws Exception {
+
         mockMvc.perform(post("/rating/validate")
+                        .with(csrf())
                         .param("moodysRating", "moodys rating")
                         .param("sandPRating", "sandP rating")
-                        .param("fitchRating", "fitch eating")
-                        .param("order", "1"))
+                        .param("fitchRating", "fitch rating")
+                        .param("orderNumber", "1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/rating/list"));
     }
 
-    //TEST ADD avec non-respect d'un champ et retour vers la page d'ajout
+    /**
+     * Vérifie le comportement du formulaire lors d'une validation invalide.
+     *
+     * @throws Exception en cas d'erreur lors du test MVC
+     */
     @Test
-    void testValidate_withInvalidData() throws Exception {
+    @WithMockUser(roles = "USER")
+    void testValidate_withInvalidData_User() throws Exception {
         mockMvc.perform(post("/rating/validate")
+                        .with(csrf())
                         .param("moodysRating", "")
                         .param("sandPRating", "sandP rating")
                         .param("fitchRating", "fitch eating")
-                        .param("order", "1"))
+                        .param("orderNumber", "1"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("rating/add"));
     }
-    //TEST GET formulaire de mise à jour d'une cp
+
+    /**
+     * Vérifie l'accès au formulaire de modification d'une notation financière.
+     *
+     * @throws Exception en cas d'erreur lors du test MVC
+     */
     @Test
-    void testShowUpdateForm() throws Exception{
-        //On crée un rating afin de pouvoir en avoir une qu'on puisse modifier
+    @WithMockUser(roles = "USER")
+    void testShowUpdateForm_User() throws Exception{
         Rating rating = new Rating();
 
         when(ratingService.findById(1)).thenReturn(rating);
@@ -90,22 +142,34 @@ public class RatingControllerTest {
                 .andExpect(model().attributeExists("rating"));
     }
 
-    //TEST POST mise à jour réussie d'une cp
+    /**
+     * Vérifie la mise à jour valide d'une notation financière.
+     *
+     * @throws Exception en cas d'erreur lors du test MVC
+     */
     @Test
-    void testUpdateRating() throws Exception{
+    @WithMockUser(roles = "USER")
+    void testUpdateRating_User() throws Exception{
         mockMvc.perform(post("/rating/update/1")
+                        .with(csrf())
                         .param("moodysRating", "moodys rating")
                         .param("sandPRating", "sandP rating")
                         .param("fitchRating", "fitch eating")
-                        .param("order", "1"))
+                        .param("orderNumber", "1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/rating/list"));
     }
 
-    //TEST POST lors que les données mise à jour ne respectent pas le format donc on retourne vers le formulaire
+    /**
+     * Vérifie le comportement du formulaire lors d'une mise à jour invalide.
+     *
+     * @throws Exception en cas d'erreur lors du test MVC
+     */
     @Test
-    void testUpdateRating_whenInvalidData() throws Exception {
+    @WithMockUser(roles = "USER")
+    void testUpdateRating_whenInvalidData_User() throws Exception {
         mockMvc.perform(post("/rating/update/1")
+                        .with(csrf())
                         .param("moodysRating", "")
                         .param("sandPRating", "sandP rating")
                         .param("fitchRating", "fitch eating"))
@@ -113,11 +177,31 @@ public class RatingControllerTest {
                 .andExpect(view().name("rating/update"));
     }
 
-    //TEST GET lorsqu'on supprime un rating
+    /**
+     * Vérifie la suppression d'une notation financière.
+     *
+     * @throws Exception en cas d'erreur lors du test MVC
+     */
     @Test
-    void testDeleteRating() throws Exception {
+    @WithMockUser(roles = "USER")
+    void testDeleteRating_User() throws Exception {
+
         mockMvc.perform(get("/rating/delete/1"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/rating/list"));
+    }
+
+    /**
+     * Vérifie qu'un utilisateur non authentifié
+     * est redirigé vers la page de connexion.
+     *
+     * @throws Exception en cas d'erreur lors du test MVC
+     */
+    @Test
+    void testRatingAccessDenied_withoutAuthentication() throws Exception {
+
+        mockMvc.perform(get("/rating/list"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("**/app/login"));
     }
 }

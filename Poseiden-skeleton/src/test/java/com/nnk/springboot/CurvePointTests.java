@@ -11,33 +11,42 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Classe de tests d'intégration dédiée aux opérations CRUD sur l'entité {@link CurvePoint}.
+ *
+ * <p>Cette classe vérifie le bon fonctionnement des opérations de persistance via {@link CurvePointRepository}.</p>
+ */
 @SpringBootTest
 public class CurvePointTests {
 
+	/**
+	 * Repository de gestion des CurvePoint.
+	 */
 	@Autowired
 	private CurvePointRepository curvePointRepository;
 
+	/**
+	 * Vérifie les opérations CRUD
+	 * sur un point de courbe financière.
+	 */
 	@Test
 	public void curvePointTest() {
 		CurvePoint curvePoint = new CurvePoint();
-		curvePoint.setId(10);
-		curvePoint.setTerm(10d);
-		curvePoint.setValue(30d);
+		curvePoint.setCurveId(10);
+		curvePoint.setTerm(10.0);
+		curvePoint.setValue(30.0);
 
-		// Save
 		curvePoint = curvePointRepository.save(curvePoint);
 		assertNotNull(curvePoint.getId());
 		assertEquals(10, curvePoint.getCurveId());
 
-		// Update
 		curvePoint.setCurveId(20);
 		curvePoint = curvePointRepository.save(curvePoint);
 		assertEquals(20, curvePoint.getCurveId());
-		// Find
+
 		List<CurvePoint> listResult = curvePointRepository.findAll();
 		assertFalse(listResult.isEmpty());
 
-		// Delete
 		Integer id = curvePoint.getId();
 		curvePointRepository.deleteById(id);
 		Optional<CurvePoint> curvePointList = curvePointRepository.findById(id);

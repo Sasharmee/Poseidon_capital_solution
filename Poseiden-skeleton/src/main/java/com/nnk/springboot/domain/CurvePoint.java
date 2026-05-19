@@ -5,33 +5,60 @@ import jakarta.validation.constraints.NotNull;
 
 import java.sql.Timestamp;
 
-
+/**
+ * Représente un point de courbe financière dans notre application.
+ *
+ * <p>Cette entité permet de stocker les valeurs associées à un point de courbe à un moment donné.
+ * Les données peuvent être utilisées pour différentes analyses et manipulations.</p>
+ *
+ * <p>La classe est associée à la table {@code curvepoint} dans la base de données.</p>
+ */
 @Entity
 @Table(name = "curvepoint")
 public class CurvePoint {
-    // TODO: Map columns in data table CURVEPOINT with corresponding java fields
 
+    /**
+     * Identifiant unique du point de courbe
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "Id")
-    private Integer id; //tinyint dans DB
+    private Integer id;
 
+    /**
+     * Identifiant de la courbe associé
+     */
+    @NotNull(message = "Curve Id is mandatory")
     @Column(name = "CurveId")
-    private Integer curveId; //tinyint dans DB
+    private Integer curveId;
 
+    /**
+     * Date de référence des données financières.
+     */
     @Column(name = "asOfDate")
     private Timestamp asOfDate;
 
+    /**
+     * Echéance du point de courbe
+     */
+    @NotNull(message = "Term is mandatory")
     @Column(name = "term")
     private Double term;
 
+    /**
+     * Valeur du point de courbe
+     */
+    @NotNull(message = "Value is mandatory")
     @Column(name = "value")
     private Double value;
 
+    /**
+     * Date de création du point de courbe
+     */
     @Column(name = "creationDate")
     private Timestamp creationDate;
 
-    public @NotNull Integer getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -55,7 +82,7 @@ public class CurvePoint {
         return creationDate;
     }
 
-    public void setId(@NotNull Integer id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

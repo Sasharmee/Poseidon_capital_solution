@@ -1,7 +1,7 @@
 package com.nnk.springboot.controllers;
 
 import com.nnk.springboot.domain.Rating;
-import com.nnk.springboot.services.RatingServiceInterface;
+import com.nnk.springboot.services.RatingService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,49 +12,83 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import jakarta.validation.Valid;
 
+/**
+ * Contrôleur MVC dédié à la gestion des notations financières.
+ *
+ * <p>Cette classe permet de gérer les opérations CRUD associées aux {@link Rating} dans l'application :</p>
+ *
+ * <ul>
+ *     <li>Affichage de la liste des notations</li>
+ *     <li>Ajout d'une nouvelle notation</li>
+ *     <li>Mise à jour d'une notation existante</li>
+ *     <li>Suppression d'une notation</li>
+ * </ul>
+ */
 @Controller
 public class RatingController {
 
-    private final RatingServiceInterface ratingService;
+    /**
+     * Service de gestion des notations financières.
+     */
+    private final RatingService ratingService;
 
-    public RatingController(RatingServiceInterface ratingService) {
+    /**
+     * Constructeur du contrôleur des ratings.
+     *
+     * @param ratingService service de gestion des notations financières
+     */
+    public RatingController(RatingService ratingService) {
         this.ratingService = ratingService;
     }
 
-    //Model injecte les données à la vue directement via findAll()
+    /**
+     * Affiche la liste des notations financières.
+     *
+     * @param model modèle utilisé pour transmettre les données à la vue
+     * @return vue de la liste des notations
+     */
     @RequestMapping("/rating/list")
     public String home(Model model) {
         model.addAttribute("ratings", ratingService.findAll());
         return "rating/list";
     }
 
-    //Spring crée un objet vide automatiquement car dans HTML on a th:object="${rating}" et donc il faut un objet un binder
+    /**
+     * Affiche le formulaire d'ajout d'une notation.
+     *
+     * @param rating objet utilisé par le formulaire
+     * @return vue du formulaire d'ajout
+     */
     @GetMapping("/rating/add")
     public String addRatingForm(Rating rating) {
         return "rating/add";
     }
 
-    //Valid donne les élements requis et leur format dans leur formulaire (valid active les validations)
-    //Spring remplit automatiquement notre objet via les informations renseignés dans le formulaire
-    //si erreur, on est envoyé vers la page d'ajout
+    /**
+     * Valide et enregistre une nouvelle notation financière.
+     *
+     * @param rating notation validée
+     * @param result résultat de la validation
+     * @param model modèle utilisé pour transmettre les données à la vue
+     * @return redirection vers la liste des notations ou vers le formulaire en cas d'erreur
+     */
     @PostMapping("/rating/validate")
     public String validate(@Valid Rating rating, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "rating/add";
         }
-        //appel de service pour ajouter le rating avec la méthode save
-        //on renvoie la liste à la view grâce au model (avec le nouveau rating)
-        //redirection vers la page list
         ratingService.save(rating);
         model.addAttribute("ratings", ratingService.findAll());
         return "redirect:/rating/list";
     }
 
-    //méthode pour accéder à la page update de rating
-    //on renseigne l'id du rating à modifier dans l'url avec pathVariable
-    //on récupère dans la db le rating via son id
-    //on injecte dans la view
-    //on envoie vers la page update
+    /**
+     * Affiche le formulaire de modification d'une notation.
+     *
+     * @param id identifiant de la notation à modifier
+     * @param model modèle utilisé pour transmettre les données à la vue
+     * @return vue du formulaire de mise à jour
+     */
     @GetMapping("/rating/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
         Rating rating = ratingService.findById(id);
@@ -62,6 +96,15 @@ public class RatingController {
         return "rating/update";
     }
 
+    /**
+     * Mise à jour d'une notation financière.
+     *
+     * @param id identifiant unique de la notation à modifier
+     * @param rating données mise à jour
+     * @param result résultat de la validation
+     * @param model modèle utilisé pour transmettre les données à la vue
+     * @return redirection vers la liste ou retour au formulaire en cas d'erreur
+     */
     @PostMapping("/rating/update/{id}")
     public String updateRating(@PathVariable("id") Integer id, @Valid Rating rating,
                              BindingResult result, Model model) {
@@ -76,6 +119,13 @@ public class RatingController {
         return "redirect:/rating/list";
     }
 
+    /**
+     * Supprime une notation financière existante.
+     *
+     * @param id identifiant de la notation à supprimer
+     * @param model modèle utilisé pour transmettre les données à la vue
+     * @return redirection vers la liste des notations
+     */
     @GetMapping("/rating/delete/{id}")
     public String deleteRating(@PathVariable("id") Integer id, Model model) {
         ratingService.deleteById(id);

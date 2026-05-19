@@ -15,15 +15,29 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Classe de tests unitaires dédiée au service {@link RatingService}.
+ *
+ * <p>Cette classe vérifie le bon fonctionnement des opérations CRUD associées aux entités {@link Rating}.</p>
+ */
 @ExtendWith(MockitoExtension.class)
 public class RatingServiceTest {
 
+    /**
+     * Repository mocké de gestion des Rating.
+     */
     @Mock
     private RatingRepository ratingRepository;
 
+    /**
+     * Service testé avec injections des mocks.
+     */
     @InjectMocks
     private RatingService ratingService;
 
+    /**
+     * Vérifie la récupération de tous les Ratings.
+     */
     @Test
     void testFindAll() {
         Rating rating = new Rating();
@@ -35,6 +49,9 @@ public class RatingServiceTest {
         verify(ratingRepository).findAll();
     }
 
+    /**
+     * Vérifie la récupération d'un Rating via son identifiant unique.
+     */
     @Test
     void testFindById() {
         Rating rating = new Rating();
@@ -48,7 +65,9 @@ public class RatingServiceTest {
         verify(ratingRepository).findById(1);
     }
 
-    //Test findById lorsqu'on ne retrouve pas dans la db une cp avec cet id
+    /**
+     * Vérifie qu'une exception est levée lorsqu'un Rating n'est pas trouvé via l'identifiant donné.
+     */
     @Test
     void testFindById_whenIdNotFound() {
         when(ratingRepository.findById(1)).thenReturn(Optional.empty());
@@ -57,6 +76,9 @@ public class RatingServiceTest {
                 ratingService.findById(1));
     }
 
+    /**
+     * Vérifie la sauvegarde d'un Rating.
+     */
     @Test
     void testSave() {
         Rating rating = new Rating();
@@ -69,6 +91,9 @@ public class RatingServiceTest {
         verify(ratingRepository).save(rating);
     }
 
+    /**
+     * Vérifie la suppression d'un Rating via son identifiant.
+     */
     @Test
     void testDeleteById() {
         ratingService.deleteById(1);

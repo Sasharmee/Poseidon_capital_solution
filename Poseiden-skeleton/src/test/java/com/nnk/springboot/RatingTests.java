@@ -11,36 +11,41 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
+/**
+ * Classe de tests d'intégration dédiée aux opérations CRUD sur l'entité {@link Rating}.
+ *
+ * <p>Cette classe vérifie le bon fonctionnement des opérations de persistance via {@link RatingRepository}.</p>
+ */
 @SpringBootTest
 public class RatingTests {
 
+	/**
+	 * Repository de gestion des notations financières.
+	 */
 	@Autowired
 	private RatingRepository ratingRepository;
 
+	/**
+	 * Vérifie les opérations CRUD sur une notation financière.
+	 */
 	@Test
 	public void ratingTest() {
 		Rating rating = new Rating();
-		rating.setId(10);
 		rating.setMoodysRating("Moodys Rating");
 		rating.setSandPRating("Sand PRating");
 		rating.setFitchRating("Fitch Rating");
+		rating.setOrderNumber(20);
 
-		// Save
 		rating = ratingRepository.save(rating);
 		assertNotNull(rating.getId());
-		assertEquals(10, rating.getOrderNumber());
 
-		// Update
 		rating.setOrderNumber(20);
 		rating = ratingRepository.save(rating);
 		assertEquals(20, rating.getOrderNumber());
 
-		// Find
 		List<Rating> listResult = ratingRepository.findAll();
 		assertFalse(listResult.isEmpty());
 
-		// Delete
 		Integer id = rating.getId();
 		ratingRepository.delete(rating);
 		Optional<Rating> ratingList = ratingRepository.findById(id);
