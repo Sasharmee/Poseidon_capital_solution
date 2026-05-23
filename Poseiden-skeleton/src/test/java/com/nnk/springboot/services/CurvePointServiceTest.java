@@ -66,6 +66,59 @@ public class CurvePointServiceTest {
     }
 
     /**
+     * Vérifie la récupération des CurvePoint
+     * à partir d'un curveId spécifique.
+     */
+    @Test
+    void testFindByCurveId() {
+
+        CurvePoint curvePoint1 = new CurvePoint();
+        curvePoint1.setCurveId(10);
+        curvePoint1.setTerm(10.0);
+        curvePoint1.setValue(30.0);
+
+        CurvePoint curvePoint2 = new CurvePoint();
+        curvePoint2.setCurveId(10);
+        curvePoint2.setTerm(20.0);
+        curvePoint2.setValue(40.0);
+
+        when(curvePointRepository.findByCurveId(10))
+                .thenReturn(List.of(curvePoint1, curvePoint2));
+
+        List<CurvePoint> result =
+                curvePointService.findByCurveId(10);
+
+        assertEquals(2, result.size());
+
+        assertTrue(
+                result.stream()
+                        .allMatch(cp -> cp.getCurveId().equals(10))
+        );
+
+        verify(curvePointRepository).findByCurveId(10);
+    }
+
+    /**
+     * Vérifie le comportement lorsque
+     * aucun CurvePoint n'est trouvé
+     * pour un curveId donné.
+     */
+    @Test
+    void testFindByCurveId_whenNoCurvePointFound() {
+
+        when(curvePointRepository.findByCurveId(99))
+                .thenReturn(List.of());
+
+        List<CurvePoint> result =
+                curvePointService.findByCurveId(99);
+
+        assertTrue(result.isEmpty());
+
+        verify(curvePointRepository).findByCurveId(99);
+    }
+
+
+    /**
      * Vérifie qu'une exception est levée lorsque aucune courbe n'est trouvée via l'identifiant donné.
      */
     @Test

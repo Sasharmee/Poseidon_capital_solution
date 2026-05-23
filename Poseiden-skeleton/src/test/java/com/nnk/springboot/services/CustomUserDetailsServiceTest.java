@@ -42,7 +42,7 @@ public class CustomUserDetailsServiceTest {
 
         User user = new User();
         user.setUsername("admin");
-        user.setPassword("password");
+        user.setPassword("Password!1");
         user.setRole("ADMIN");
 
         when(userRepository.findByUsername("admin")).thenReturn(user);
@@ -50,7 +50,7 @@ public class CustomUserDetailsServiceTest {
         UserDetails result = customUserDetailsService.loadUserByUsername("admin");
 
         assertEquals("admin", result.getUsername());
-        assertEquals("password", result.getPassword());
+        assertEquals("Password!1", result.getPassword());
 
         assertTrue(result.getAuthorities()
                 .stream()
